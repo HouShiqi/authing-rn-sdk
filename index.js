@@ -40,12 +40,13 @@ const AuthingGuard = props => {
 	head.appendChild(script)`;
 
 	const injectGuardOptions = `
-	window.ReactNativeWebView.html={
+	(function() {
 		document.head.insertAdjacentHTML('beforeend', \`${staticHtmlHead}\`);
 		var scriptEl = document.createElement('script');
-        scriptEl.innerHTML = \`${staticScript}\`;
-        document.head.appendChild(scriptEl);
-	}
+		scriptEl.innerHTML = \`${staticScript}\`;
+		document.head.appendChild(scriptEl);
+	})();
+	true;
 `;
 	return (
 		<View style={{ flex: 1, flexDirection: 'column' }}>
@@ -55,7 +56,10 @@ const AuthingGuard = props => {
 					uri: 'https://console.authing.cn/react-native/webview'
 				}}
 				originWhitelist={['*']}
-				renderLoading={
+				javaScriptEnabled={true}
+				domStorageEnabled={true}
+				startInLoadingState={true}
+				renderLoading={() => (
 					<ActivityIndicator
 						color="#009b88"
 						size="large"
@@ -64,7 +68,7 @@ const AuthingGuard = props => {
 							justifyContent: 'center'
 						}}
 					/>
-				}
+				)}
 				injectedJavaScript={injectGuardOptions}
 				onMessage={e => {
 					const eventDetail = JSON.parse(e.nativeEvent.data);
